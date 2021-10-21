@@ -245,11 +245,11 @@ void SimpleEQAudioProcessor::updatePeakFilter(const ChainSettings& chainSettings
                                                                                 chainSettings.peakQuality,
                                                                                 juce::Decibels::decibelsToGain(chainSettings.peakGainInDecibels));
     
-    updateCoefficient(leftChain.get<ChainPositions::Peak>().coefficients, peakCoefficients);
-    updateCoefficient(rightChain.get<ChainPositions::Peak>().coefficients, peakCoefficients);
+    updateCoefficients(leftChain.get<ChainPositions::Peak>().coefficients, peakCoefficients);
+    updateCoefficients(rightChain.get<ChainPositions::Peak>().coefficients, peakCoefficients);
 }
 
-void SimpleEQAudioProcessor::updateCoefficient(Coefficients& old, const Coefficients &replacements)
+void SimpleEQAudioProcessor::updateCoefficients(Coefficients& old, const Coefficients &replacements)
 {
     *old = *replacements;
 }
