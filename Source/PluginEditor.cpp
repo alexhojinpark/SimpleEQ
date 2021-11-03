@@ -80,7 +80,14 @@ juce::Rectangle<int> RotarySliderWithLabels::getSliderBounds() const
     auto bounds = getLocalBounds();
     auto size = juce::jmin(bounds.getWidth(), bounds.getHeight());
     
-    size -= getT
+    size -= getTextHeight() * 2;
+    
+    juce::Rectangle<int> r;
+    r.setSize(size, size);
+    r.setCentre(bounds.getCentreX(), 0);
+    r.setY(2);
+    
+    return r;
     
 }
 ResponseCurveComponent::ResponseCurveComponent(SimpleEQAudioProcessor& p) : audioProcessor(p)
