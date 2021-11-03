@@ -22,13 +22,15 @@ struct LookAndFeel : juce::LookAndFeel_V4
 
 struct RotarySliderWithLabels : juce::Slider
 {
-    RotarySliderWithLabels(juce::RangedAudioParameter& rap, const juce::String& unitSuffix) : juce::Slider(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag,
-                     juce::Slider::TextEntryBoxPosition::NoTextBox),
+    RotarySliderWithLabels(juce::RangedAudioParameter& rap, const juce::String& unitSuffix) :
+    juce::Slider(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag,
+                 juce::Slider::TextEntryBoxPosition::NoTextBox),
     param(&rap),
     suffix(unitSuffix)
     {
         setLookAndFeel(&lnf);
     }
+    
     ~RotarySliderWithLabels()
     {
         setLookAndFeel(nullptr);
@@ -69,7 +71,7 @@ private:
 //==============================================================================
 /**
 */
-class SimpleEQAudioProcessorEditor  : public juce::AudioProcessorEditor
+class SimpleEQAudioProcessorEditor : public juce::AudioProcessorEditor
 {
 public:
     SimpleEQAudioProcessorEditor (SimpleEQAudioProcessor&);

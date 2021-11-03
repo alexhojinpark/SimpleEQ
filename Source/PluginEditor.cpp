@@ -26,26 +26,41 @@ void LookAndFeel::drawRotarySlider(juce::Graphics & g,
     g.setColour(Colour(255u, 154u, 1u));
     g.drawEllipse(bounds, 1.f);
     
-    auto center = bounds.getCentre();
-    
-    Path p;
-    
-    Rectangle<float> r;
-    r.setLeft(center.getX() - 2);
-    r.setRight(center.getX() + 2);
-    r.setTop(bounds.getY());
-    r.setBottom(center.getY());
-    
-    p.addRectangle(r);
-    
-    jassert(rotaryStartAngle < rotaryEndAngle);
-    
-    auto sliderAngRad = jmap(sliderPosProportional, 0.f, 1.f, rotaryStartAngle, rotaryEndAngle);
-    
-    p.applyTransform(AffineTransform().rotated(sliderAngRad, center.getX(), center.getY()));
-    
-    g.fillPath(p);
-    
+    if (auto* rswl = dynamic_cast<RotarySliderWithLabels*>(&slider))
+    {
+        auto center = bounds.getCentre();
+        
+        Path p;
+        
+        Rectangle<float> r;
+        r.setLeft(center.getX() - 2);
+        r.setRight(center.getX() + 2);
+        r.setTop(bounds.getY());
+        r.setBottom(center.getY() - rswl->getTextHeight() * 1.5);
+        
+        p.addRoundedRectangle(r, 2.f);
+        
+        jassert(rotaryStartAngle < rotaryEndAngle);
+        
+        auto sliderAngRad = jmap(sliderPosProportional, 0.f, 1.f, rotaryStartAngle, rotaryEndAngle);
+        
+        p.applyTransform(AffineTransform().rotated(sliderAngRad, center.getX(), center.getY()));
+        
+        g.fillPath(p);
+        
+        g.setFont(rswl->getTextHeight());
+        auto text = rswl->getDisplayString();
+        auto strWidth = g.getCurrentFont().getStringWidth(text);
+        
+        r.setSize(strWidth + 4, rswl->getTextHeight() + 2);
+        r.setCentre(bounds.getCentre());
+        
+        g.setColour(Colours::black);
+        g.fillRect(r);
+        
+        g.setColour(Colours::white);
+        g.drawFittedText(text, r.toNearestInt(), juce::Justification::centred, 1);
+    }
 }
 
 void RotarySliderWithLabels::paint(juce::Graphics &g)
@@ -90,10 +105,17 @@ juce::Rectangle<int> RotarySliderWithLabels::getSliderBounds() const
     return r;
     
 }
+
+juce::String RotarySliderWithLabels::getDisplayString() const
+{
+    return juce::String(getValue());
+}
+
+//==================================================================================
 ResponseCurveComponent::ResponseCurveComponent(SimpleEQAudioProcessor& p) : audioProcessor(p)
 {
     const auto& params = audioProcessor.getParameters();
-    for( auto param : params )
+    for (auto param : params)
     {
         param->addListener(this);
     }
@@ -104,7 +126,7 @@ ResponseCurveComponent::ResponseCurveComponent(SimpleEQAudioProcessor& p) : audi
 ResponseCurveComponent::~ResponseCurveComponent()
 {
     const auto& params = audioProcessor.getParameters();
-    for( auto param : params )
+    for (auto param : params)
     {
         param->removeListener(this);
     }
@@ -117,9 +139,8 @@ void ResponseCurveComponent::parameterValueChanged(int parameterIndex, float new
 
 void ResponseCurveComponent::timerCallback()
 {
-    if( parametersChanged.compareAndSetBool(false, true) )
+    if (parametersChanged.compareAndSetBool(false, true))
     {
-        DBG( "params changed" );
         //update the monochain
         auto chainSettings = getChainSettings(audioProcessor.apvts);
         auto peakCoefficients = makePeakFilter(chainSettings, audioProcessor.getSampleRate());
@@ -135,7 +156,7 @@ void ResponseCurveComponent::timerCallback()
     }
 }
 
-void ResponseCurveComponent::paint (juce::Graphics& g)
+void ResponseCurveComponent::paint(juce::Graphics& g)
 {
     using namespace juce;
     // (Our component is opaque, so we must completely fill the background with a solid colour)
@@ -155,7 +176,7 @@ void ResponseCurveComponent::paint (juce::Graphics& g)
     
     mags.resize(w);
     
-    for( int i = 0; i < w; ++i )
+    for (int i = 0; i < w; ++i)
     {
         double mag = 1.f;
         auto freq = mapToLog10(double(i) / double(w), 20.0, 20000.0);
@@ -195,7 +216,7 @@ void ResponseCurveComponent::paint (juce::Graphics& g)
     
     responseCurve.startNewSubPath(responseArea.getX(), map(mags.front()));
     
-    for( size_t i = 1; i < mags.size(); ++i )
+    for (size_t i = 1; i < mags.size(); ++i)
     {
         responseCurve.lineTo(responseArea.getX() + i, map(mags[i]));
     }
@@ -210,9 +231,9 @@ void ResponseCurveComponent::paint (juce::Graphics& g)
 SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor (SimpleEQAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p),
 
-peakFreqSlider(*audioProcessor.apvts.getParameter("Peak Feaq"), "Hz"),
+peakFreqSlider(*audioProcessor.apvts.getParameter("Peak Freq"), "Hz"),
 peakGainSlider(*audioProcessor.apvts.getParameter("Peak Gain"), "dB"),
-peakQualitySlider(*audioProcessor.apvts.getParameter("Peak Quality"), "Hz"),
+peakQualitySlider(*audioProcessor.apvts.getParameter("Peak Quality"), ""),
 lowCutFreqSlider(*audioProcessor.apvts.getParameter("LowCut Freq"), "Hz"),
 highCutFreqSlider(*audioProcessor.apvts.getParameter("HighCut Freq"), "Hz"),
 lowCutSlopeSlider(*audioProcessor.apvts.getParameter("LowCut Slope"), "dB/Oct"),
@@ -230,7 +251,7 @@ highCutSlopeSliderAttachment(audioProcessor.apvts, "HighCut Slope", highCutSlope
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     
-    for( auto* comp : getComps() )
+    for (auto* comp : getComps())
     {
         addAndMakeVisible(comp);
     }
@@ -238,10 +259,7 @@ highCutSlopeSliderAttachment(audioProcessor.apvts, "HighCut Slope", highCutSlope
     setSize (600, 400);
 }
 
-SimpleEQAudioProcessorEditor::~SimpleEQAudioProcessorEditor()
-{
-    
-}
+SimpleEQAudioProcessorEditor::~SimpleEQAudioProcessorEditor() {}
 
 //==============================================================================
 void SimpleEQAudioProcessorEditor::paint (juce::Graphics& g)
