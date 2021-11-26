@@ -22,10 +22,12 @@ void LookAndFeel::drawRotarySlider(juce::Graphics & g,
     
     auto enabled = slider.isEnabled();
     
-    g.setColour(enabled ? Colour(97u, 18u, 167u) : Colours::darkgrey);
+    // slider inside
+    g.setColour(enabled ? Colour(152, 0, 0) : Colours::darkgrey); // 152,0,0
     g.fillEllipse(bounds);
 
-    g.setColour(enabled ? Colour(255u, 154u, 1u) : Colours::grey);
+    // slider outside
+    g.setColour(enabled ? Colour(255, 255, 255) : Colours::grey);
     g.drawEllipse(bounds, 1.f);
     
     if (auto* rswl = dynamic_cast<RotarySliderWithLabels*>(&slider))
@@ -99,7 +101,8 @@ void LookAndFeel::drawToggleButton(juce::Graphics &g,
           powerButton.lineTo(r.getCentre());
 
           PathStrokeType pst(2.f, PathStrokeType::JointStyle::curved);
-
+          
+          // slider button
           auto color = toggleButton.getToggleState() ? Colours::dimgrey : Colour(0u, 172u, 1u);
 
           g.setColour(color);
@@ -108,6 +111,7 @@ void LookAndFeel::drawToggleButton(juce::Graphics &g,
       }
       else if (auto* analyzerButton = dynamic_cast<AnalyzerButton*>(&toggleButton))
       {
+          // analyzer button
           auto color = ! toggleButton.getToggleState() ? Colours::dimgrey : Colour(0u, 172u, 1u);
 
           g.setColour(color);
@@ -149,7 +153,8 @@ void RotarySliderWithLabels::paint(juce::Graphics &g)
     auto center = sliderBounds.toFloat().getCentre();
     auto radius = sliderBounds.getWidth() * 0.5f;
     
-    g.setColour(Colour(0u, 172, 1u));
+    // slider min & max label
+    g.setColour(juce::Colours::dimgrey);
     g.setFont(getTextHeight());
     
     auto numChoices = labels.size();
@@ -354,6 +359,7 @@ void ResponseCurveComponent::updateChain()
 void ResponseCurveComponent::paint(juce::Graphics& g)
 {
     using namespace juce;
+    // Background colour
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (Colours::black);
 
@@ -422,22 +428,25 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
         responseCurve.lineTo(responseArea.getX() + i, map(mags[i]));
     }
     
+    // FFT
     if (shouldShowFFTAnalysis)
     {
         auto leftChannelFFTPath = leftPathProducer.getPath();
         leftChannelFFTPath.applyTransform(AffineTransform().translation(responseArea.getX(), responseArea.getY()));
-        g.setColour(Colours::skyblue);
+        g.setColour(Colours::red);
         g.strokePath(leftChannelFFTPath, PathStrokeType(1.f));
         
         auto rightChannelFFTPath = rightPathProducer.getPath();
         rightChannelFFTPath.applyTransform(AffineTransform().translation(responseArea.getX(), responseArea.getY()));
-        g.setColour(Colours::lightyellow);
+        g.setColour(Colours::green);
         g.strokePath(rightChannelFFTPath, PathStrokeType(1.f));
     }
     
+    // FFT outer line (box)
     g.setColour(Colours::orange);
     g.drawRoundedRectangle(getRenderArea().toFloat(), 4.f, 1.f);
     
+    // White line (response curve)
     g.setColour(Colours::white);
     g.strokePath(responseCurve, PathStrokeType(2.f));
 }
@@ -471,6 +480,7 @@ void ResponseCurveComponent::resized()
         xs.add(left + width * normX);
     }
     
+    // FFT vertical line
     g.setColour(Colours::dimgrey);
     
     for (auto x : xs)
@@ -486,10 +496,11 @@ void ResponseCurveComponent::resized()
     for (auto gDb : gain)
     {
         auto y = jmap(gDb, -24.f, 24.f, float(bottom), float(top));
-        g.setColour(gDb == 0.f ? Colour(0u, 172u, 1u) : Colours::darkgrey);
+        g.setColour(gDb == 0.f ? Colour(0u, 172u, 1u) : Colours::dimgrey); // FFT Horizontal line
         g.drawHorizontalLine(y, left, right);
     }
     
+    // FFT top horizontal
     g.setColour(Colours::lightgrey);
     const int fontHeight = 10;
     g.setFont(fontHeight);
@@ -518,8 +529,9 @@ void ResponseCurveComponent::resized()
         r.setSize(textWidth, fontHeight);
         r.setCentre(x, 0);
         r.setY(1);
-        
+    
         g.drawFittedText(str, r, juce::Justification::centred, 1);
+        
     }
     
     for (auto gDb : gain)
@@ -538,6 +550,7 @@ void ResponseCurveComponent::resized()
         r.setX(getWidth() - textWidth);
         r.setCentre(r.getCentreX(), y);
         
+        // FFT right vertical
         g.setColour(gDb == 0.f ? Colour(0u, 172u, 1u) : Colours::lightgrey);
         
         g.drawFittedText(str, r, juce::Justification::centred, 1);
@@ -548,7 +561,7 @@ void ResponseCurveComponent::resized()
         r.setX(1);
         textWidth = g.getCurrentFont().getStringWidth(str);
         r.setSize(textWidth, fontHeight);
-        g.setColour(Colours::lightgrey);
+        g.setColour(Colours::lightgrey); // FFT left vertical
         g.drawFittedText(str, r, juce::Justification::centred, 1);
         
     }
