@@ -6,6 +6,8 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "../JuceLibraryCode/JuceHeader.h"
+
 void LookAndFeel::drawRotarySlider(juce::Graphics & g,
                                    int x,
                                    int y,
@@ -41,6 +43,7 @@ void LookAndFeel::drawRotarySlider(juce::Graphics & g,
         r.setRight(center.getX() + 2);
         r.setTop(bounds.getY());
         r.setBottom(center.getY() - rswl->getTextHeight() * 1.5);
+//        r.setBottom(center.getY());
         
         p.addRoundedRectangle(r, 2.f);
         
@@ -154,7 +157,7 @@ void RotarySliderWithLabels::paint(juce::Graphics &g)
     auto radius = sliderBounds.getWidth() * 0.5f;
     
     // slider min & max label
-    g.setColour(juce::Colours::dimgrey);
+    g.setColour(juce::Colours::white);
     g.setFont(getTextHeight());
     
     auto numChoices = labels.size();
@@ -640,6 +643,7 @@ analyzerEnabledButtonAttachment(audioProcessor.apvts, "Analyzer Enabled", analyz
         addAndMakeVisible(comp);
     }
     
+//    addAndMakeVisible(
     peakBypassButton.setLookAndFeel(&lnf);
     lowcutBypassButton.setLookAndFeel(&lnf);
     highcutBypassButton.setLookAndFeel(&lnf);
@@ -707,6 +711,11 @@ void SimpleEQAudioProcessorEditor::paint (juce::Graphics& g)
     using namespace juce;
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (Colours::black);
+    
+    Image background = ImageCache::getFromMemory (BinaryData::xmas9_png, BinaryData::xmas9_pngSize);
+//    background.multiplyAllAlphas(1.1f);
+    g.drawImageAt(background, -190, -50);
+    
 }
 
 void SimpleEQAudioProcessorEditor::resized()
@@ -720,7 +729,6 @@ void SimpleEQAudioProcessorEditor::resized()
     analyzerEnabledArea.setWidth(100);
     analyzerEnabledArea.setX(5);
     analyzerEnabledArea.removeFromTop(2);
-    
     analyzerEnabledButton.setBounds(analyzerEnabledArea);
     
     bounds.removeFromTop(5);
@@ -731,10 +739,10 @@ void SimpleEQAudioProcessorEditor::resized()
     responseCurveComponent.setBounds(responseArea);
     
     bounds.removeFromTop(5);
+//    bounds.removeFromBottom(JUCE_LIVE_CONSTANT(30));
     
-    auto lowCutArea = bounds.removeFromLeft(bounds.getWidth() * 0.33);
+    auto lowCutArea = bounds.removeFromLeft(bounds.getWidth() * JUCE_LIVE_CONSTANT(0.33));
     auto highCutArea = bounds.removeFromRight(bounds.getWidth() * 0.5);
-    
     
     lowcutBypassButton.setBounds(lowCutArea.removeFromTop(25));
     lowCutFreqSlider.setBounds(lowCutArea.removeFromTop(lowCutArea.getHeight() * 0.5));
@@ -748,6 +756,51 @@ void SimpleEQAudioProcessorEditor::resized()
     peakFreqSlider.setBounds(bounds.removeFromTop(bounds.getHeight() * 0.33));
     peakGainSlider.setBounds(bounds.removeFromTop(bounds.getHeight() * 0.5));
     peakQualitySlider.setBounds(bounds);
+    
+//    bounds.removeFromBottom(JUCE_LIVE_CONSTANT(30));
+    
+    auto lowCutLabelArea = bounds.removeFromBottom(25);
+    lowCutLabelArea.setWidth(JUCE_LIVE_CONSTANT(55));
+    lowCutLabelArea.setHeight(JUCE_LIVE_CONSTANT(16));
+    lowCutLabelArea.setX(JUCE_LIVE_CONSTANT(70));
+    lowCutLabelArea.setY(JUCE_LIVE_CONSTANT(460));
+    
+    auto highCutLabelArea = bounds.removeFromBottom(25);
+    highCutLabelArea.setWidth(JUCE_LIVE_CONSTANT(55));
+    highCutLabelArea.setHeight(JUCE_LIVE_CONSTANT(16));
+    highCutLabelArea.setX(JUCE_LIVE_CONSTANT(471));
+    highCutLabelArea.setY(JUCE_LIVE_CONSTANT(460));
+    
+    auto peakLabelArea = bounds.removeFromBottom(25);
+    peakLabelArea.setWidth(JUCE_LIVE_CONSTANT(55));
+    peakLabelArea.setHeight(JUCE_LIVE_CONSTANT(16));
+    peakLabelArea.setX(JUCE_LIVE_CONSTANT(278));
+    peakLabelArea.setY(JUCE_LIVE_CONSTANT(463));
+    
+    addAndMakeVisible (lowCutLabel);
+    lowCutLabel.setFont (juce::Font (14.7f));
+    lowCutLabel.setText ("LowCut", juce::dontSendNotification);
+    lowCutLabel.setColour (juce::Label::textColourId, juce::Colours::white);
+    lowCutLabel.setBounds(lowCutLabelArea);
+//
+    addAndMakeVisible (highCutLabel);
+    highCutLabel.setFont (juce::Font (14.7f));
+    highCutLabel.setText ("HighCut", juce::dontSendNotification);
+    highCutLabel.setColour (juce::Label::textColourId, juce::Colours::white);
+//    highCutLabel.setJustificationType (juce::Justification::centred);
+////    highCutLabel.setBounds (JUCE_LIVE_CONSTANT(200), 219, getWidth(), getHeight());
+    highCutLabel.setBounds(highCutLabelArea);
+//
+    addAndMakeVisible (peakLabel);
+    peakLabel.setFont (juce::Font (14.7f));
+    peakLabel.setText ("Peak", juce::dontSendNotification);
+    peakLabel.setColour (juce::Label::textColourId, juce::Colours::white);
+//    peakLabel.setJustificationType (juce::Justification::centred);
+////    peakLabel.setBounds (0, JUCE_LIVE_CONSTANT(222), getWidth(), getHeight());
+    peakLabel.setBounds(peakLabelArea);
+    
+//    auto lowCutLabelArea = bounds.removeFromLeft(bounds.getWidth() * 0.33);
+//    auto highCutLabelArea = bounds.removeFromLeft(bounds.getWidth() * 0.5);
 }
 
 std::vector<juce::Component*> SimpleEQAudioProcessorEditor::getComps()
@@ -766,6 +819,10 @@ std::vector<juce::Component*> SimpleEQAudioProcessorEditor::getComps()
         &lowcutBypassButton,
         &peakBypassButton,
         &highcutBypassButton,
-        &analyzerEnabledButton
+        &analyzerEnabledButton,
+        
+        &lowCutLabel,
+        &peakLabel,
+        &highCutLabel
     };
 }

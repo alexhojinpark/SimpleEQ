@@ -12,6 +12,15 @@
             file="Source/PluginEditor.cpp"/>
       <FILE id="wDcI2q" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
+    <FILE id="aeCM8c" name="xmas.png" compile="0" resource="1" file="../../xmas.png"/>
+    <FILE id="ayKeZS" name="xmas2.png" compile="0" resource="1" file="../../xmas2.png"/>
+    <FILE id="Trz8CO" name="xmas3.png" compile="0" resource="1" file="../../xmas3.png"/>
+    <FILE id="hDU01f" name="xmas4.png" compile="0" resource="1" file="../../xmas4.png"/>
+    <FILE id="iEUFyc" name="xmas5.png" compile="0" resource="1" file="../../xmas5.png"/>
+    <FILE id="zXpgoc" name="xmas6.png" compile="0" resource="1" file="../../../Downloads/xmas6.png"/>
+    <FILE id="c9YZQv" name="xmas7.png" compile="0" resource="1" file="../../../Downloads/xmas7.png"/>
+    <FILE id="gufKxj" name="xmas8.png" compile="0" resource="1" file="../../../Downloads/xmas8.png"/>
+    <FILE id="Ry1kBr" name="xmas9.png" compile="0" resource="1" file="../../../Downloads/xmas9.png"/>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
   <EXPORTFORMATS>

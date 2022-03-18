@@ -301,11 +301,15 @@ public:
     void resized() override;
 
 private:
+    juce::TextButton button {"LowCut"};
+    juce::Label lowCutLabel;
+    juce::Label peakLabel;
+    juce::Label highCutLabel;
+    
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     SimpleEQAudioProcessor& audioProcessor;
 
-    
     RotarySliderWithLabels peakFreqSlider,
     peakGainSlider,
     peakQualitySlider,
